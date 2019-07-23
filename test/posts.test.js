@@ -6,6 +6,7 @@ const connect = require('../lib/utils/connect');
 const mongoose = require('mongoose');
 const User = require('../lib/models/User');
 const Post = require('../lib/models/Post');
+const Comment = require('../lib/models/Comment');
 
 
 describe('post routes', () => {
@@ -78,9 +79,16 @@ describe('post routes', () => {
       tags: ['color', 'dog', 'blessed']
     });
 
+    const comment = await Comment.create({
+      commentBy: user._id,
+      post: posts._id,
+      comment: 'STUFF'
+    });
+
     return agent
       .get(`/api/v1/posts/${posts._id}`)
       .then(res => {
+        console.log(res.body)
         expect(res.body).toEqual({
           user: {
             username: user.username,
@@ -90,7 +98,16 @@ describe('post routes', () => {
           photoUrl: posts.photoUrl,
           caption: posts.caption,
           tags: [...posts.tags],
-          _id: expect.any(String)
+          _id: expect.any(String),
+          comments: [
+            {
+              _id: expect.any(String),
+              commentBy: comment.commentBy.toString(),
+              post: comment.post.toString(),
+              comment: comment.comment,
+              __v: 0
+            }
+          ]
         });
       });
   });
