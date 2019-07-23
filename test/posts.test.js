@@ -95,7 +95,7 @@ describe('post routes', () => {
       });
   });
 
-  it('patches a post by id', async() => {
+  it('patches a caption by id, if(req.user)', async() => {
     const posts = await Post.create({
       user: user._id,
       photoUrl: 'Some Photo',
@@ -113,6 +113,21 @@ describe('post routes', () => {
           tags: [...posts.tags], 
           _id: expect.any(String)
         });
+      });
+  });
+
+  it('it can delete a post', async() => {
+    const post = await Post.create({
+      user: user._id,
+      photoUrl: 'Some Photo',
+      caption: 'Some Caption',
+      tags: ['color', 'dog', 'blessed']
+    });
+
+    return agent
+      .delete(`/api/v1/posts/${post._id}`)
+      .then(res => {
+        expect(res.body.caption).toEqual('Some Caption');
       });
   });
 });
