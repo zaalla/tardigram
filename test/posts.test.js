@@ -16,10 +16,10 @@ describe('post routes', () => {
   beforeEach(() => {
     return mongoose.connection.dropDatabase();
   });
- let user = null;
+  let user = null;
   const agent = request.agent(app);
   beforeEach(async() => {
-      user = await User.create({
+    user = await User.create({
       username: 'lalall',
       password: 'wkejrnwkejrn',
       profilePhotoUrl: 'hebrjwhebwjebr'
@@ -29,8 +29,8 @@ describe('post routes', () => {
       .send({
         username: 'lalall',
         password: 'wkejrnwkejrn',
-      })
-  })
+      });
+  });
 
   afterAll(() => {
     return mongoose.connection.close();
@@ -50,16 +50,16 @@ describe('post routes', () => {
           __v: 0
         });
       });
-    });
+  });
     
   it('can get all posts', () => {
     return agent
-    .post('/api/v1/posts')
-    .send({ photoUrl: 'somePhoto', caption: 'someCaption', tags: ['cool', 'dog', 'blessed' ]})
-    .then(res => {
-      return agent
-        .get('/api/v1/posts')
-    })
+      .post('/api/v1/posts')
+      .send({ photoUrl: 'somePhoto', caption: 'someCaption', tags: ['cool', 'dog', 'blessed' ]})
+      .then(() => {
+        return agent
+          .get('/api/v1/posts')
+      })
       .then(res => {
         expect(res.body).toEqual([{
           user: expect.any(String),
@@ -112,7 +112,7 @@ describe('post routes', () => {
           caption: 'New Caption',
           tags: [...posts.tags], 
           _id: expect.any(String)
-        })
-      })
-  })
+        });
+      });
+  });
 });

@@ -32,15 +32,15 @@ describe('app routes', () => {
           _id: expect.any(String),
           username: 'lalall',
           profilePhotoUrl: 'hebrjwhebwjebr'
-        })
-      })
+        });
+      });
   });
 
   it('can sign in an existing user and provide token', async() => {
     const user = await User.create({
       username: 'lalall',
-        password: 'wkejrnwkejrn',
-        profilePhotoUrl: 'hebrjwhebwjebr'
+      password: 'wkejrnwkejrn',
+      profilePhotoUrl: 'hebrjwhebwjebr'
     });
 
     return request(app)
@@ -54,15 +54,15 @@ describe('app routes', () => {
           _id: expect.any(String),
           username: 'lalall',
           profilePhotoUrl: 'hebrjwhebwjebr'
-        })
-      })
+        });
+      });
   });
   
   it('can verify a user with a token', async() => {
     const user = await User.create({
       username: 'lalall',
-        password: 'wkejrnwkejrn',
-        profilePhotoUrl: 'hebrjwhebwjebr'
+      password: 'wkejrnwkejrn',
+      profilePhotoUrl: 'hebrjwhebwjebr'
     });
     const agent = request.agent(app);
     return agent 
@@ -71,16 +71,16 @@ describe('app routes', () => {
         username: 'lalall',
         password: 'wkejrnwkejrn',
       })
-      .then(res => {
+      .then(() => {
         return agent
-          .get('/api/v1/auth/verify')
+          .get('/api/v1/auth/verify');
       })
       .then(res => {
         expect(res.body).toEqual({
           _id: expect.any(String),
           username: 'lalall',
           profilePhotoUrl: 'hebrjwhebwjebr'
-        })
-      })
-  })
+        });
+      });
+  });
 });
