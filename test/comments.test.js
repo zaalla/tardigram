@@ -17,4 +17,15 @@ describe('comment routes', () => {
         });
       });
   });
+
+  it('can delete a comment by id', async() => {
+    const comments = getComments();
+    const user = getUsers()[0];
+    const comment = comments.find(c => c.commentBy === user._id);
+    return getAgent()
+      .delete(`/api/v1/comments/${comment._id}`)
+      .then(res => {
+        expect(res.body.comment).toEqual(expect.any(String));
+      });
+  });
 });
