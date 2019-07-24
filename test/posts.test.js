@@ -1,44 +1,8 @@
-require('dotenv').config();
-
-const request = require('supertest');
-const app = require('../lib/app');
-const connect = require('../lib/utils/connect');
-const mongoose = require('mongoose');
-const User = require('../lib/models/User');
-const Post = require('../lib/models/Post');
-const Comment = require('../lib/models/Comment');
-
+const { getAgent, getUsers, getPosts } = require('./data-helper');
 
 describe('post routes', () => {
-  beforeAll(() => {
-    connect();
-  });
-
-  beforeEach(() => {
-    return mongoose.connection.dropDatabase();
-  });
-  let user = null;
-  const agent = request.agent(app);
-  beforeEach(async() => {
-    user = await User.create({
-      username: 'lalall',
-      password: 'wkejrnwkejrn',
-      profilePhotoUrl: 'hebrjwhebwjebr'
-    });
-    return agent 
-      .post('/api/v1/auth/signin')
-      .send({
-        username: 'lalall',
-        password: 'wkejrnwkejrn',
-      });
-  });
-
-  afterAll(() => {
-    return mongoose.connection.close();
-  });
-
   it('can create a post', () => {
-    return agent
+    return getAgent()
       .post('/api/v1/posts/')
       .send({ photoUrl: 'somePhoto', caption: 'someCaption', tags: ['cool', 'dog', 'blessed'] })
       .then(res => {
@@ -54,39 +18,28 @@ describe('post routes', () => {
   });
     
   it('can get all posts', () => {
-    return agent
-      .post('/api/v1/posts')
-      .send({ photoUrl: 'somePhoto', caption: 'someCaption', tags: ['cool', 'dog', 'blessed'] })
-      .then(() => {
-        return agent
-          .get('/api/v1/posts');
-      })
+    const posts = getPosts();
+    return getAgent()
+      .get('/api/v1/posts')
       .then(res => {
-        expect(res.body).toEqual([{
-          user: expect.any(String),
-          photoUrl: 'somePhoto',
-          caption: 'someCaption',
-          tags: ['cool', 'dog', 'blessed'],
-        }]);
+        posts.forEach(post => {
+          expect(res.body).toContainEqual({
+            tags: post.tags,
+            caption: post.caption,
+            photoUrl: post.photoUrl,
+            user: expect.any(String)
+          });
+        });
       });
   });
 
   it('can get posts by id', async() => {
-    const posts = await Post.create({
-      user: user._id,
-      photoUrl: 'Some Photo',
-      caption: 'Some Caption',
-      tags: ['color', 'dog', 'blessed']
-    });
+    const posts = getPosts();
+    const user = getUsers()[0];
+    const post = posts.find(p => p.user === user._id);
 
-    const comment = await Comment.create({
-      commentBy: user._id,
-      post: posts._id,
-      comment: 'STUFF'
-    });
-
-    return agent
-      .get(`/api/v1/posts/${posts._id}`)
+    return getAgent()
+      .get(`/api/v1/posts/${post._id}`)
       .then(res => {
         expect(res.body).toEqual({
           user: {
@@ -94,56 +47,43 @@ describe('post routes', () => {
             profilePhotoUrl: user.profilePhotoUrl,
             _id: expect.any(String)
           },
-          photoUrl: posts.photoUrl,
-          caption: posts.caption,
-          tags: [...posts.tags],
+          photoUrl: post.photoUrl,
+          caption: post.caption,
+          tags: [...post.tags],
           _id: expect.any(String),
-          comments: [
-            {
-              _id: expect.any(String),
-              commentBy: comment.commentBy.toString(),
-              post: comment.post.toString(),
-              comment: comment.comment,
-              __v: 0
-            }
-          ]
+          comments: expect.any(Array)
         });
       });
   });
 
-  it('patches a caption by id, if current user', async() => {
-    const posts = await Post.create({
-      user: user._id,
-      photoUrl: 'Some Photo',
-      caption: 'Some Caption',
-      tags: ['color', 'dog', 'blessed']
-    });
-    return agent
-      .patch(`/api/v1/posts/${posts._id}`)
+  it('patches a caption by id, if current user', () => {
+    const posts = getPosts();
+    const user = getUsers()[0];
+    const post = posts.find(p => p.user === user._id);
+
+    return getAgent()
+      .patch(`/api/v1/posts/${post._id}`)
       .send({ caption: 'New Caption' })
       .then(res => {
         expect(res.body).toEqual({
-          user: user._id.toString(),
-          photoUrl: posts.photoUrl,
+          user: user._id,
+          photoUrl: post.photoUrl,
           caption: 'New Caption',
-          tags: [...posts.tags], 
+          tags: expect.any(Array), 
           _id: expect.any(String)
         });
       });
   });
 
   it('it can delete a post', async() => {
-    const post = await Post.create({
-      user: user._id,
-      photoUrl: 'Some Photo',
-      caption: 'Some Caption',
-      tags: ['color', 'dog', 'blessed']
-    });
+    const posts = getPosts();
+    const user = getUsers()[0];
+    const post = posts.find(p => p.user === user._id);
 
-    return agent
+    return getAgent()
       .delete(`/api/v1/posts/${post._id}`)
       .then(res => {
-        expect(res.body.caption).toEqual('Some Caption');
+        expect(res.body.caption).toEqual(post.caption);
       });
   });
 });
