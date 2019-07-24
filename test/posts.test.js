@@ -56,10 +56,10 @@ describe('post routes', () => {
   it('can get all posts', () => {
     return agent
       .post('/api/v1/posts')
-      .send({ photoUrl: 'somePhoto', caption: 'someCaption', tags: ['cool', 'dog', 'blessed' ]})
+      .send({ photoUrl: 'somePhoto', caption: 'someCaption', tags: ['cool', 'dog', 'blessed'] })
       .then(() => {
         return agent
-          .get('/api/v1/posts')
+          .get('/api/v1/posts');
       })
       .then(res => {
         expect(res.body).toEqual([{
@@ -88,7 +88,6 @@ describe('post routes', () => {
     return agent
       .get(`/api/v1/posts/${posts._id}`)
       .then(res => {
-        console.log(res.body)
         expect(res.body).toEqual({
           user: {
             username: user.username,
@@ -112,7 +111,7 @@ describe('post routes', () => {
       });
   });
 
-  it('patches a caption by id, if(req.user)', async() => {
+  it('patches a caption by id, if current user', async() => {
     const posts = await Post.create({
       user: user._id,
       photoUrl: 'Some Photo',
