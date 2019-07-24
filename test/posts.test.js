@@ -1,4 +1,5 @@
 const { getAgent, getUsers, getPosts } = require('./data-helper');
+const User
 
 describe('post routes', () => {
   it('can create a post', () => {
@@ -85,5 +86,14 @@ describe('post routes', () => {
       .then(res => {
         expect(res.body.caption).toEqual(post.caption);
       });
+  });
+
+  it('can get no more than 10 posts with the most comments', async() => {
+    const user = await User.create({
+
+    })
+    const posts = await Post.create([
+      { user: '123'}
+    ])
   });
 });
