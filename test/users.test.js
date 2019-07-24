@@ -18,5 +18,14 @@ describe('user routes', () => {
         expect(res.body.length).toEqual(5);
       });
   });
+
+  it('can get the 10 users with the most comments', () => {
+    return getAgent()
+      .get('/api/v1/users/leader')
+      .then(res => {
+        expect(res.body[0].commentCount).toBeGreaterThan(res.body[2].commentCount);
+        expect(res.body.length).toEqual(5);
+      });
+  });
 });
 
