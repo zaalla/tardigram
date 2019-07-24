@@ -1,5 +1,4 @@
 const { getAgent, getUsers, getPosts } = require('./data-helper');
-const User
 
 describe('post routes', () => {
   it('can create a post', () => {
@@ -88,12 +87,12 @@ describe('post routes', () => {
       });
   });
 
-  it('can get no more than 10 posts with the most comments', async() => {
-    const user = await User.create({
-
-    })
-    const posts = await Post.create([
-      { user: '123'}
-    ])
+  it('can get no more than 10 posts with the most comments', () => {
+    return getAgent()
+      .get('/api/v1/posts/popular')
+      .then(res => {
+        expect(res.body[0].commentCount).toBeGreaterThan(res.body[9].commentCount);
+        expect(res.body.length).toEqual(10);
+      });
   });
 });
