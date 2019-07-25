@@ -27,5 +27,14 @@ describe('user routes', () => {
         expect(res.body.length).toEqual(5);
       });
   });
+
+  it('can return up to the 10 users with the most average comments per post', () => {
+    return getAgent()
+      .get('/api/v1/users/impact')
+      .then(res => {
+        expect(res.body[0].commentAverage).toBeGreaterThan(res.body[4].commentAverage);
+        expect(res.body.length).toEqual(5);
+      });
+  });
 });
 
